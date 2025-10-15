@@ -1,98 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import "./App.css";
-
-// Componente SortableTask para drag & drop
-function SortableTask({ task, onToggle, onDelete, formatDate, getPriorityColor }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <li
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`task-item ${task.done ? 'completed' : ''} ${
-        isDragging ? 'dragging' : ''
-      }`}
-    >
-      <div className="task-content">
-        <span 
-          className="checkbox"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggle(task.id, task.done);
-          }}
-        >
-          {task.done ? "✅" : "⭕"}
-        </span>
-        
-        <div className="task-details">
-          <span className="task-text">{task.title}</span>
-          
-          <div className="task-meta">
-            {task.deadline && (
-              <span className="deadline">
-                📅 {formatDate(task.deadline)}
-              </span>
-            )}
-            
-            <span 
-              className="priority-tag"
-              style={{ backgroundColor: getPriorityColor(task.priority) }}
-            >
-              {task.priority === 'high' && '🔴 Alta'}
-              {task.priority === 'medium' && '🟡 Média'}
-              {task.priority === 'low' && '🟢 Baixa'}
-            </span>
-            
-            <span className="created-at">
-              Criada em: {formatDate(task.createdAt)}
-            </span>
-          </div>
-        </div>
-      </div>
-      
-      <button 
-        className="delete-button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(task);
-        }}
-        title="Excluir tarefa"
-      >
-        🗑️
-      </button>
-    </li>
-  );
-}
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -107,26 +14,42 @@ function App() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
 
-  // Sensores para drag & drop
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  // 🆕 DRAG & DROP SIMPLES
+  const [draggedTask, setDraggedTask] = useState(null);
+  const [dragOverTask, setDragOverTask] = useState(null);
 
-  // Drag & Drop - Reordenar tarefas
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
+  const handleDragStart = (e, task) => {
+    setDraggedTask(task);
+    e.dataTransfer.effectAllowed = "move";
+  };
 
-    if (active.id !== over?.id) {
-      setTasks((tasks) => {
-        const oldIndex = tasks.findIndex((task) => task.id === active.id);
-        const newIndex = tasks.findIndex((task) => task.id === over.id);
+  const handleDragOver = (e, task) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverTask(task);
+  };
 
-        return arrayMove(tasks, oldIndex, newIndex);
-      });
+  const handleDragLeave = () => {
+    setDragOverTask(null);
+  };
+
+  const handleDrop = (e, targetTask) => {
+    e.preventDefault();
+    if (!draggedTask || draggedTask.id === targetTask.id) {
+      setDragOverTask(null);
+      return;
     }
+
+    const draggedIndex = tasks.findIndex(t => t.id === draggedTask.id);
+    const targetIndex = tasks.findIndex(t => t.id === targetTask.id);
+
+    const newTasks = [...tasks];
+    const [removed] = newTasks.splice(draggedIndex, 1);
+    newTasks.splice(targetIndex, 0, removed);
+
+    setTasks(newTasks);
+    setDraggedTask(null);
+    setDragOverTask(null);
   };
 
   // Carrega tema do localStorage
@@ -391,7 +314,7 @@ function App() {
 
         {loading && <div className="loading">Carregando...</div>}
 
-        {/* 📋 LISTA DE TAREFAS COM DRAG & DROP */}
+        {/* 📋 LISTA DE TAREFAS COM DRAG & DROP SIMPLES */}
         <div className="tasks-section">
           <h2 className="tasks-title">
             {filter === 'all' && 'Todas as Tarefas'}
@@ -411,26 +334,63 @@ function App() {
               <div className="drag-instruction">
                 💡 Arraste as tarefas para reordenar
               </div>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext items={filteredTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
-                  <ul className="tasks-list">
-                    {filteredTasks.map((task) => (
-                      <SortableTask
-                        key={task.id}
-                        task={task}
-                        onToggle={toggleTask}
-                        onDelete={confirmDelete}
-                        formatDate={formatDate}
-                        getPriorityColor={getPriorityColor}
-                      />
-                    ))}
-                  </ul>
-                </SortableContext>
-              </DndContext>
+              <ul className="tasks-list">
+                {filteredTasks.map((task) => (
+                  <li 
+                    key={task.id} 
+                    className={`task-item ${task.done ? 'completed' : ''} ${
+                      dragOverTask?.id === task.id ? 'drag-over' : ''
+                    }`}
+                    draggable="true"
+                    onDragStart={(e) => handleDragStart(e, task)}
+                    onDragOver={(e) => handleDragOver(e, task)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, task)}
+                  >
+                    <div className="task-content">
+                      <span 
+                        className="checkbox"
+                        onClick={() => toggleTask(task.id, task.done)}
+                      >
+                        {task.done ? "✅" : "⭕"}
+                      </span>
+                      
+                      <div className="task-details">
+                        <span className="task-text">{task.title}</span>
+                        
+                        <div className="task-meta">
+                          {task.deadline && (
+                            <span className="deadline">
+                              📅 {formatDate(task.deadline)}
+                            </span>
+                          )}
+                          
+                          <span 
+                            className="priority-tag"
+                            style={{ backgroundColor: getPriorityColor(task.priority) }}
+                          >
+                            {task.priority === 'high' && '🔴 Alta'}
+                            {task.priority === 'medium' && '🟡 Média'}
+                            {task.priority === 'low' && '🟢 Baixa'}
+                          </span>
+                          
+                          <span className="created-at">
+                            Criada em: {formatDate(task.createdAt)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <button 
+                      className="delete-button"
+                      onClick={() => confirmDelete(task)}
+                      title="Excluir tarefa"
+                    >
+                      🗑️
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </>
           )}
         </div>

@@ -732,3 +732,59 @@ body.dark-mode .drag-instruction {
   border-left-width: 6px;
   transform: translateX(3px);
 }
+
+/* 🎯 DRAG & DROP SIMPLES */
+.task-item[draggable="true"] {
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.task-item[draggable="true"]:active {
+  cursor: grabbing;
+  opacity: 0.7;
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.dark-mode .task-item[draggable="true"]:active {
+  box-shadow: 0 8px 25px rgba(187, 134, 252, 0.3) !important;
+}
+
+.task-item[draggable="true"]:hover {
+  border-left-width: 6px;
+  transform: translateX(3px);
+}
+
+/* Efeito durante o drag over */
+.task-item.drag-over {
+  border: 2px dashed var(--accent-color);
+  background: rgba(102, 126, 234, 0.05);
+}
+
+body.dark-mode .task-item.drag-over {
+  border-color: var(--accent-dark);
+  background: rgba(187, 134, 252, 0.05);
+}
+
+.drag-instruction {
+  text-align: center;
+  color: var(--accent-color);
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  font-style: italic;
+  padding: 8px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent-color);
+}
+
+body.dark-mode .drag-instruction {
+  color: var(--accent-dark);
+  background: rgba(187, 134, 252, 0.05);
+  border-left-color: var(--accent-dark);
+}
+
+/* Remove os estilos antigos do @dnd-kit que não vamos usar */
+.dragging, .drag-placeholder, .task-item [data-draggable="true"] {
+  /* Esses estilos não são mais necessários */
+}
