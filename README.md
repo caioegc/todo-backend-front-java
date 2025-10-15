@@ -1,8 +1,6 @@
-# 🧠 To-Do List – Back-end em Java Puro
-
-Um **pequeno sistema de gerenciamento de tarefas (To-Do List)** desenvolvido integralmente em **Java puro**, sem o uso de frameworks. O projeto utiliza recursos nativos do Java para criar um servidor HTTP e gerencia a persistência de dados em um arquivo local (`tasks.json`).
-
-**🎯 Objetivo:** Este projeto é ideal para **iniciantes** que desejam compreender a fundo o funcionamento de um servidor HTTP simples e a lógica de persistência de dados em aplicações Java, sem a abstração de frameworks.
+# 🧠 To-Do List – Back-end em Java Puro + Front-end em HTML/CSS/JS
+Um sistema completo de gerenciamento de tarefas com back-end em Java puro e front-end moderno com drag & drop e modo escuro.
+Objetivo: Este projeto é ideal para iniciantes que desejam compreender o funcionamento full-stack desde um servidor HTTP simples até uma interface web interativa.
 
 ---
 
@@ -10,6 +8,8 @@ Um **pequeno sistema de gerenciamento de tarefas (To-Do List)** desenvolvido int
 
 Este projeto foca no uso de recursos nativos e mínimos para demonstrar a base de uma aplicação web:
 
+
+## Back-end
 | Tecnologia | Descrição |
 | :--- | :--- |
 | **Java 17+** | Linguagem principal do projeto. |
@@ -17,16 +17,35 @@ Este projeto foca no uso de recursos nativos e mínimos para demonstrar a base d
 | **JSON** | Formato de dados para salvar e ler as tarefas no arquivo local. |
 | **PowerShell / curl** | Ferramentas de linha de comando para testar as rotas da API. |
 
+## Front-end
+| Tecnologia | Descrição |
+| :--- | :--- |
+| **HTML5** | Estrutura semântica da aplicação. |
+| **CSS3** | Estilos com variáveis CSS e gradientes. |
+| **JavaScript** | Interatividade e consumo da API. |
+| **Drag & Drop API** | Funcionalidade de arrastar tarefas. |
+| **Local Storage** | Tema preferido do usuário. |
+
 ---
 
 ## ⚙️ Funcionalidades
 
-✅ Adicionar tarefas  
-✅ Listar tarefas  
-✅ Armazenar no arquivo `tasks.json`  
-🕓 Persiste os dados entre execuções  
 
-> Em breve: marcar como concluída e remover tarefa.
+## Back-end
+✅ Servidor HTTP na porta 8080
+✅ API RESTful para CRUD de tarefas
+✅ Persistência em arquivo JSON
+✅ CORS configurado para front-end
+
+
+## Front-end
+✅ Modo escuro/claro com toggle
+✅ Drag & drop para reorganizar tarefas
+✅ Adicionar novas tarefas
+✅ Marcar como concluída
+✅ Excluir tarefas
+✅ Interface responsiva
+✅ Persistência do tema preferido
 
 ---
 
@@ -37,6 +56,12 @@ backend/
 ├── TaskHandler.java # Lida com requisições HTTP e manipula o JSON
 ├── tasks.json # Banco de dados local (ignorado no Git)
 └── .gitignore # Evita versionar arquivos temporários
+
+frontend/
+├── index.html         # Interface principal
+├── style.css          # Estilos com temas dark/light
+├── script.js          # Lógica e consumo da API
+└── drag-drop.js       # Funcionalidade drag & drop
 
 
 ---
@@ -50,14 +75,18 @@ git clone https://github.com/caioegc/todo-backend-java.git
 cd todo-backend-java/backend
 ```
 
-### 2. Compile os arquivos Java
-javac Main.java Task.java TaskHandler.java
-
-### 3. Execute o servidor
+### 2. Execute o Back-end
+```bash
+cd backend
+javac *.java
 java Main
+```
 
-O servidor iniciará em:
-👉 http://localhost:8080/tasks
+### 3. Execute o Front-end
+```bash
+cd frontend
+npm start
+```
 
 ## 📬 Testando as rotas
 
@@ -75,6 +104,22 @@ Invoke-RestMethod -Uri http://localhost:8080/tasks -Method GET
   { "id": 2, "title": "Ler documentação", "done": true }
 ]
 ```
+
+## 🎨 Recursos do Front-end
+## Tema Dark/Light
+Toggle visual para alternar entre temas
+
+Cores suaves com gradientes
+
+Persistência no localStorage
+
+##  Drag & Drop
+Arraste tarefas para reordenar
+
+Feedback visual durante o arrasto
+
+Experiência intuitiva
+
 ---
 ## ✨ Autor
 Nome	Caio Eduardo
@@ -83,7 +128,7 @@ Formação	Estudante de Sistemas de Informação no IFAL
 
 Interesses	Apaixonado por programação e desenvolvimento de software.
 
-GitHub	🔗 Caio Eduardo
+GitHub	🔗 caioegc
 ---
 ## 📘 Licença
 
