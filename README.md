@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🧠 To-Do List – Back-end em Java Puro
 
 Um **pequeno sistema de gerenciamento de tarefas (To-Do List)** desenvolvido integralmente em **Java puro**, sem o uso de frameworks. O projeto utiliza recursos nativos do Java para criar um servidor HTTP e gerencia a persistência de dados em um arquivo local (`tasks.json`).
