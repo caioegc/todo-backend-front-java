@@ -319,6 +319,124 @@ body {
   border: 1px solid #e9ecef;
 }
 
+/* 🆕 MODAL DE CONFIRMAÇÃO */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.delete-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 16px 16px 0 0;
+  text-align: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.modal-body {
+  padding: 30px;
+  text-align: center;
+}
+
+.task-to-delete {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 15px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #ff6b6b;
+}
+
+.warning-text {
+  color: #e53e3e;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  padding: 0 30px 30px;
+  justify-content: center;
+}
+
+.cancel-btn {
+  padding: 12px 25px;
+  background: #718096;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.cancel-btn:hover {
+  background: #4a5568;
+  transform: translateY(-2px);
+}
+
+.delete-confirm-btn {
+  padding: 12px 25px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.delete-confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+}
+
+/* 🆕 ANIMAÇÕES */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* 📱 RESPONSIVO */
 @media (max-width: 768px) {
   .input-section {
@@ -346,5 +464,15 @@ body {
   .stats {
     flex-direction: column;
     gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .delete-modal {
+    width: 95%;
   }
 }

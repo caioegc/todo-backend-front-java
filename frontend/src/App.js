@@ -7,8 +7,12 @@ function App() {
   const [deadline, setDeadline] = useState("");
   const [priority, setPriority] = useState("medium");
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("all"); // all, active, completed
+  const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  
+  // 🆕 MODAL DE CONFIRMAÇÃO
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   // Carrega tarefas do backend
   async function loadTasks() {
@@ -56,17 +60,25 @@ function App() {
     }
   }
 
-  // Deletar tarefa
-  async function deleteTask(id) {
-    if (!window.confirm("Tem certeza que deseja excluir esta tarefa?")) return;
+  // 🆕 CONFIRMAR DELETE
+  const confirmDelete = (task) => {
+    setTaskToDelete(task);
+    setShowDeleteModal(true);
+  };
+
+  // 🆕 DELETAR APÓS CONFIRMAÇÃO
+  const handleDelete = async () => {
+    if (!taskToDelete) return;
     
     try {
-      const response = await fetch(`http://localhost:8080/tasks/${id}`, {
+      const response = await fetch(`http://localhost:8080/tasks/${taskToDelete.id}`, {
         method: 'DELETE'
       });
 
       if (response.ok) {
         await loadTasks();
+        setShowDeleteModal(false);
+        setTaskToDelete(null);
       } else {
         alert("Erro ao deletar tarefa");
       }
@@ -74,7 +86,13 @@ function App() {
       console.error("Erro ao deletar tarefa:", err);
       alert("Erro ao conectar com o servidor");
     }
-  }
+  };
+
+  // 🆕 CANCELAR DELETE
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setTaskToDelete(null);
+  };
 
   // Marcar/desmarcar como concluída
   async function toggleTask(id, currentDone) {
@@ -103,11 +121,9 @@ function App() {
 
   // Filtra tarefas
   const filteredTasks = tasks.filter(task => {
-    // Filtro por status
     if (filter === "active" && task.done) return false;
     if (filter === "completed" && !task.done) return false;
     
-    // Filtro por busca
     if (search && !task.title.toLowerCase().includes(search.toLowerCase())) {
       return false;
     }
@@ -128,18 +144,16 @@ function App() {
   };
 
   // Formata data
-  // Formata data - CORRIGIDO
-const formatDate = (dateString) => {
-  if (!dateString) return "";
-  
-  try {
-    // Corrige o problema do fuso horário
-    const date = new Date(dateString + 'T12:00:00'); // Força meio-dia pra evitar mudança de dia
-    return date.toLocaleDateString('pt-BR');
-  } catch (error) {
-    return dateString; // Se der erro, retorna original
-  }
-};
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    
+    try {
+      const date = new Date(dateString + 'T12:00:00');
+      return date.toLocaleDateString('pt-BR');
+    } catch (error) {
+      return dateString;
+    }
+  };
 
   // Cor da prioridade
   const getPriorityColor = (priority) => {
@@ -287,7 +301,7 @@ const formatDate = (dateString) => {
                   
                   <button 
                     className="delete-button"
-                    onClick={() => deleteTask(task.id)}
+                    onClick={() => confirmDelete(task)}  {...arguments}
                     title="Excluir tarefa"
                   >
                     🗑️
@@ -307,6 +321,36 @@ const formatDate = (dateString) => {
             <span>Alta prioridade: {tasks.filter(t => t.priority === 'high').length}</span>
           </div>
         </footer>
+
+        {/* 🆕 MODAL DE CONFIRMAÇÃO DE DELETE */}
+        {showDeleteModal && (
+          <div className="modal-overlay">
+            <div className="delete-modal">
+              <div className="modal-header">
+                <h3>🗑️ Confirmar Exclusão</h3>
+              </div>
+              <div className="modal-body">
+                <p>Tem certeza que deseja excluir a tarefa:</p>
+                <p className="task-to-delete">"{taskToDelete?.title}"</p>
+                <p className="warning-text">Esta ação não pode ser desfeita!</p>
+              </div>
+              <div className="modal-actions">
+                <button 
+                  className="cancel-btn"
+                  onClick={cancelDelete}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="delete-confirm-btn"
+                  onClick={handleDelete}
+                >
+                  Sim, Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
