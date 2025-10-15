@@ -1,5 +1,98 @@
 import { useEffect, useState } from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import "./App.css";
+
+// Componente SortableTask para drag & drop
+function SortableTask({ task, onToggle, onDelete, formatDate, getPriorityColor }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`task-item ${task.done ? 'completed' : ''} ${
+        isDragging ? 'dragging' : ''
+      }`}
+    >
+      <div className="task-content">
+        <span 
+          className="checkbox"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle(task.id, task.done);
+          }}
+        >
+          {task.done ? "✅" : "⭕"}
+        </span>
+        
+        <div className="task-details">
+          <span className="task-text">{task.title}</span>
+          
+          <div className="task-meta">
+            {task.deadline && (
+              <span className="deadline">
+                📅 {formatDate(task.deadline)}
+              </span>
+            )}
+            
+            <span 
+              className="priority-tag"
+              style={{ backgroundColor: getPriorityColor(task.priority) }}
+            >
+              {task.priority === 'high' && '🔴 Alta'}
+              {task.priority === 'medium' && '🟡 Média'}
+              {task.priority === 'low' && '🟢 Baixa'}
+            </span>
+            
+            <span className="created-at">
+              Criada em: {formatDate(task.createdAt)}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <button 
+        className="delete-button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(task);
+        }}
+        title="Excluir tarefa"
+      >
+        🗑️
+      </button>
+    </li>
+  );
+}
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -9,10 +102,56 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
   
-  // 🆕 MODAL DE CONFIRMAÇÃO
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
+
+  // Sensores para drag & drop
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Drag & Drop - Reordenar tarefas
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setTasks((tasks) => {
+        const oldIndex = tasks.findIndex((task) => task.id === active.id);
+        const newIndex = tasks.findIndex((task) => task.id === over.id);
+
+        return arrayMove(tasks, oldIndex, newIndex);
+      });
+    }
+  };
+
+  // Carrega tema do localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('darkMode');
+    if (savedTheme) {
+      setDarkMode(JSON.parse(savedTheme));
+    }
+  }, []);
+
+  // Aplica tema ao body
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+      document.body.classList.remove('light-mode');
+    } else {
+      document.body.classList.add('light-mode');
+      document.body.classList.remove('dark-mode');
+    }
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
 
   // Carrega tarefas do backend
   async function loadTasks() {
@@ -60,13 +199,13 @@ function App() {
     }
   }
 
-  // 🆕 CONFIRMAR DELETE
+  // CONFIRMAR DELETE
   const confirmDelete = (task) => {
     setTaskToDelete(task);
     setShowDeleteModal(true);
   };
 
-  // 🆕 DELETAR APÓS CONFIRMAÇÃO
+  // DELETAR APÓS CONFIRMAÇÃO
   const handleDelete = async () => {
     if (!taskToDelete) return;
     
@@ -88,7 +227,7 @@ function App() {
     }
   };
 
-  // 🆕 CANCELAR DELETE
+  // CANCELAR DELETE
   const cancelDelete = () => {
     setShowDeleteModal(false);
     setTaskToDelete(null);
@@ -171,6 +310,12 @@ function App() {
         <header className="header">
           <h1 className="title">🚀 To-Do List PRO</h1>
           <p className="subtitle">Sistema profissional de gerenciamento de tarefas</p>
+          <button 
+            className="theme-toggle"
+            onClick={toggleDarkMode}
+          >
+            {darkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
         </header>
 
         {/* 🔍 BARRA DE PESQUISA E FILTROS */}
@@ -246,7 +391,7 @@ function App() {
 
         {loading && <div className="loading">Carregando...</div>}
 
-        {/* 📋 LISTA DE TAREFAS */}
+        {/* 📋 LISTA DE TAREFAS COM DRAG & DROP */}
         <div className="tasks-section">
           <h2 className="tasks-title">
             {filter === 'all' && 'Todas as Tarefas'}
@@ -262,53 +407,31 @@ function App() {
               <p>{search ? 'Tente outra busca.' : 'Adicione uma nova tarefa acima.'}</p>
             </div>
           ) : (
-            <ul className="tasks-list">
-              {filteredTasks.map((task) => (
-                <li key={task.id} className={`task-item ${task.done ? 'completed' : ''}`}>
-                  <div className="task-content">
-                    <span 
-                      className="checkbox"
-                      onClick={() => toggleTask(task.id, task.done)}
-                    >
-                      {task.done ? "✅" : "⭕"}
-                    </span>
-                    
-                    <div className="task-details">
-                      <span className="task-text">{task.title}</span>
-                      
-                      <div className="task-meta">
-                        {task.deadline && (
-                          <span className="deadline">
-                            📅 {formatDate(task.deadline)}
-                          </span>
-                        )}
-                        
-                        <span 
-                          className="priority-tag"
-                          style={{ backgroundColor: getPriorityColor(task.priority) }}
-                        >
-                          {task.priority === 'high' && '🔴 Alta'}
-                          {task.priority === 'medium' && '🟡 Média'}
-                          {task.priority === 'low' && '🟢 Baixa'}
-                        </span>
-                        
-                        <span className="created-at">
-                          Criada em: {formatDate(task.createdAt)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button 
-                    className="delete-button"
-                    onClick={() => confirmDelete(task)}  {...arguments}
-                    title="Excluir tarefa"
-                  >
-                    🗑️
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <>
+              <div className="drag-instruction">
+                💡 Arraste as tarefas para reordenar
+              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext items={filteredTasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+                  <ul className="tasks-list">
+                    {filteredTasks.map((task) => (
+                      <SortableTask
+                        key={task.id}
+                        task={task}
+                        onToggle={toggleTask}
+                        onDelete={confirmDelete}
+                        formatDate={formatDate}
+                        getPriorityColor={getPriorityColor}
+                      />
+                    ))}
+                  </ul>
+                </SortableContext>
+              </DndContext>
+            </>
           )}
         </div>
 
@@ -322,7 +445,7 @@ function App() {
           </div>
         </footer>
 
-        {/* 🆕 MODAL DE CONFIRMAÇÃO DE DELETE */}
+        {/* MODAL DE CONFIRMAÇÃO DE DELETE */}
         {showDeleteModal && (
           <div className="modal-overlay">
             <div className="delete-modal">
