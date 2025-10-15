@@ -76,7 +76,7 @@ Invoke-RestMethod -Uri http://localhost:8080/tasks -Method GET
 ]
 ```
 ---
-##✨ Autor
+## ✨ Autor
 Nome	Caio Eduardo
 
 Formação	Estudante de Sistemas de Informação no IFAL
@@ -85,11 +85,9 @@ Interesses	Apaixonado por programação e desenvolvimento de software.
 
 GitHub	🔗 Caio Eduardo
 ---
-
-📘 Licença
+## 📘 Licença
 
 Este projeto é de uso livre para fins de estudo e aprendizado.
-
 
 ---
 
