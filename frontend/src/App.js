@@ -7,8 +7,74 @@ function App() {
   const [deadline, setDeadline] = useState("");
   const [priority, setPriority] = useState("medium");
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("all"); // all, active, completed
+  const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
+  
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+
+  // 🆕 DRAG & DROP SIMPLES
+  const [draggedTask, setDraggedTask] = useState(null);
+  const [dragOverTask, setDragOverTask] = useState(null);
+
+  const handleDragStart = (e, task) => {
+    setDraggedTask(task);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e, task) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverTask(task);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverTask(null);
+  };
+
+  const handleDrop = (e, targetTask) => {
+    e.preventDefault();
+    if (!draggedTask || draggedTask.id === targetTask.id) {
+      setDragOverTask(null);
+      return;
+    }
+
+    const draggedIndex = tasks.findIndex(t => t.id === draggedTask.id);
+    const targetIndex = tasks.findIndex(t => t.id === targetTask.id);
+
+    const newTasks = [...tasks];
+    const [removed] = newTasks.splice(draggedIndex, 1);
+    newTasks.splice(targetIndex, 0, removed);
+
+    setTasks(newTasks);
+    setDraggedTask(null);
+    setDragOverTask(null);
+  };
+
+  // Carrega tema do localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('darkMode');
+    if (savedTheme) {
+      setDarkMode(JSON.parse(savedTheme));
+    }
+  }, []);
+
+  // Aplica tema ao body
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+      document.body.classList.remove('light-mode');
+    } else {
+      document.body.classList.add('light-mode');
+      document.body.classList.remove('dark-mode');
+    }
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
 
   // Carrega tarefas do backend
   async function loadTasks() {
@@ -56,17 +122,25 @@ function App() {
     }
   }
 
-  // Deletar tarefa
-  async function deleteTask(id) {
-    if (!window.confirm("Tem certeza que deseja excluir esta tarefa?")) return;
+  // CONFIRMAR DELETE
+  const confirmDelete = (task) => {
+    setTaskToDelete(task);
+    setShowDeleteModal(true);
+  };
+
+  // DELETAR APÓS CONFIRMAÇÃO
+  const handleDelete = async () => {
+    if (!taskToDelete) return;
     
     try {
-      const response = await fetch(`http://localhost:8080/tasks/${id}`, {
+      const response = await fetch(`http://localhost:8080/tasks/${taskToDelete.id}`, {
         method: 'DELETE'
       });
 
       if (response.ok) {
         await loadTasks();
+        setShowDeleteModal(false);
+        setTaskToDelete(null);
       } else {
         alert("Erro ao deletar tarefa");
       }
@@ -74,7 +148,13 @@ function App() {
       console.error("Erro ao deletar tarefa:", err);
       alert("Erro ao conectar com o servidor");
     }
-  }
+  };
+
+  // CANCELAR DELETE
+  const cancelDelete = () => {
+    setShowDeleteModal(false);
+    setTaskToDelete(null);
+  };
 
   // Marcar/desmarcar como concluída
   async function toggleTask(id, currentDone) {
@@ -103,11 +183,9 @@ function App() {
 
   // Filtra tarefas
   const filteredTasks = tasks.filter(task => {
-    // Filtro por status
     if (filter === "active" && task.done) return false;
     if (filter === "completed" && !task.done) return false;
     
-    // Filtro por busca
     if (search && !task.title.toLowerCase().includes(search.toLowerCase())) {
       return false;
     }
@@ -128,18 +206,16 @@ function App() {
   };
 
   // Formata data
-  // Formata data - CORRIGIDO
-const formatDate = (dateString) => {
-  if (!dateString) return "";
-  
-  try {
-    // Corrige o problema do fuso horário
-    const date = new Date(dateString + 'T12:00:00'); // Força meio-dia pra evitar mudança de dia
-    return date.toLocaleDateString('pt-BR');
-  } catch (error) {
-    return dateString; // Se der erro, retorna original
-  }
-};
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    
+    try {
+      const date = new Date(dateString + 'T12:00:00');
+      return date.toLocaleDateString('pt-BR');
+    } catch (error) {
+      return dateString;
+    }
+  };
 
   // Cor da prioridade
   const getPriorityColor = (priority) => {
@@ -157,6 +233,12 @@ const formatDate = (dateString) => {
         <header className="header">
           <h1 className="title">🚀 To-Do List PRO</h1>
           <p className="subtitle">Sistema profissional de gerenciamento de tarefas</p>
+          <button 
+            className="theme-toggle"
+            onClick={toggleDarkMode}
+          >
+            {darkMode ? 'Light Mode' : 'Dark Mode'}
+          </button>
         </header>
 
         {/* 🔍 BARRA DE PESQUISA E FILTROS */}
@@ -232,7 +314,7 @@ const formatDate = (dateString) => {
 
         {loading && <div className="loading">Carregando...</div>}
 
-        {/* 📋 LISTA DE TAREFAS */}
+        {/* 📋 LISTA DE TAREFAS COM DRAG & DROP SIMPLES */}
         <div className="tasks-section">
           <h2 className="tasks-title">
             {filter === 'all' && 'Todas as Tarefas'}
@@ -248,53 +330,68 @@ const formatDate = (dateString) => {
               <p>{search ? 'Tente outra busca.' : 'Adicione uma nova tarefa acima.'}</p>
             </div>
           ) : (
-            <ul className="tasks-list">
-              {filteredTasks.map((task) => (
-                <li key={task.id} className={`task-item ${task.done ? 'completed' : ''}`}>
-                  <div className="task-content">
-                    <span 
-                      className="checkbox"
-                      onClick={() => toggleTask(task.id, task.done)}
-                    >
-                      {task.done ? "✅" : "⭕"}
-                    </span>
-                    
-                    <div className="task-details">
-                      <span className="task-text">{task.title}</span>
+            <>
+              <div className="drag-instruction">
+                💡 Arraste as tarefas para reordenar
+              </div>
+              <ul className="tasks-list">
+                {filteredTasks.map((task) => (
+                  <li 
+                    key={task.id} 
+                    className={`task-item ${task.done ? 'completed' : ''} ${
+                      dragOverTask?.id === task.id ? 'drag-over' : ''
+                    }`}
+                    draggable="true"
+                    onDragStart={(e) => handleDragStart(e, task)}
+                    onDragOver={(e) => handleDragOver(e, task)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, task)}
+                  >
+                    <div className="task-content">
+                      <span 
+                        className="checkbox"
+                        onClick={() => toggleTask(task.id, task.done)}
+                      >
+                        {task.done ? "✅" : "⭕"}
+                      </span>
                       
-                      <div className="task-meta">
-                        {task.deadline && (
-                          <span className="deadline">
-                            📅 {formatDate(task.deadline)}
+                      <div className="task-details">
+                        <span className="task-text">{task.title}</span>
+                        
+                        <div className="task-meta">
+                          {task.deadline && (
+                            <span className="deadline">
+                              📅 {formatDate(task.deadline)}
+                            </span>
+                          )}
+                          
+                          <span 
+                            className="priority-tag"
+                            style={{ backgroundColor: getPriorityColor(task.priority) }}
+                          >
+                            {task.priority === 'high' && '🔴 Alta'}
+                            {task.priority === 'medium' && '🟡 Média'}
+                            {task.priority === 'low' && '🟢 Baixa'}
                           </span>
-                        )}
-                        
-                        <span 
-                          className="priority-tag"
-                          style={{ backgroundColor: getPriorityColor(task.priority) }}
-                        >
-                          {task.priority === 'high' && '🔴 Alta'}
-                          {task.priority === 'medium' && '🟡 Média'}
-                          {task.priority === 'low' && '🟢 Baixa'}
-                        </span>
-                        
-                        <span className="created-at">
-                          Criada em: {formatDate(task.createdAt)}
-                        </span>
+                          
+                          <span className="created-at">
+                            Criada em: {formatDate(task.createdAt)}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <button 
-                    className="delete-button"
-                    onClick={() => deleteTask(task.id)}
-                    title="Excluir tarefa"
-                  >
-                    🗑️
-                  </button>
-                </li>
-              ))}
-            </ul>
+                    
+                    <button 
+                      className="delete-button"
+                      onClick={() => confirmDelete(task)}
+                      title="Excluir tarefa"
+                    >
+                      🗑️
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
 
@@ -307,6 +404,36 @@ const formatDate = (dateString) => {
             <span>Alta prioridade: {tasks.filter(t => t.priority === 'high').length}</span>
           </div>
         </footer>
+
+        {/* MODAL DE CONFIRMAÇÃO DE DELETE */}
+        {showDeleteModal && (
+          <div className="modal-overlay">
+            <div className="delete-modal">
+              <div className="modal-header">
+                <h3>🗑️ Confirmar Exclusão</h3>
+              </div>
+              <div className="modal-body">
+                <p>Tem certeza que deseja excluir a tarefa:</p>
+                <p className="task-to-delete">"{taskToDelete?.title}"</p>
+                <p className="warning-text">Esta ação não pode ser desfeita!</p>
+              </div>
+              <div className="modal-actions">
+                <button 
+                  className="cancel-btn"
+                  onClick={cancelDelete}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="delete-confirm-btn"
+                  onClick={handleDelete}
+                >
+                  Sim, Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

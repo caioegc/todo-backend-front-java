@@ -1,3 +1,23 @@
+/* Variáveis de tema */
+:root {
+  /* Light theme (default) */
+  --bg-color: #ffffff;
+  --card-color: #f8f9fa;
+  --text-color: #333333;
+  --accent-color: #667eea;
+  --border-color: #e9ecef;
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-danger: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  
+  /* Dark theme */
+  --bg-dark: #1a1a1a;
+  --card-dark: #2d2d2d; 
+  --text-dark: #ffffff;
+  --accent-dark: #bb86fc;
+  --border-dark: #444444;
+}
+
+/* Reset e base */
 * {
   margin: 0;
   padding: 0;
@@ -6,9 +26,14 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-primary);
   min-height: 100vh;
   padding: 20px;
+  transition: all 0.3s ease;
+}
+
+body.dark-mode {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
 }
 
 .app {
@@ -17,17 +42,49 @@ body {
 }
 
 .container {
-  background: white;
+  background: var(--bg-color);
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.1);
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
+body.dark-mode .container {
+  background: var(--card-dark);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+/* Header */
 .header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-primary);
   color: white;
   padding: 40px 30px;
   text-align: center;
+  position: relative;
+}
+
+body.dark-mode .header {
+  background: linear-gradient(135deg, #bb86fc 0%, #985eff 100%);
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
 }
 
 .title {
@@ -45,8 +102,14 @@ body {
 /* 🔍 CONTROLES */
 .controls-section {
   padding: 20px 30px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--card-color);
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+body.dark-mode .controls-section {
+  background: var(--bg-dark);
+  border-bottom-color: var(--border-dark);
 }
 
 .search-bar {
@@ -56,16 +119,29 @@ body {
 .search-input {
   width: 100%;
   padding: 12px 20px;
-  border: 2px solid #e9ecef;
+  border: 2px solid var(--border-color);
   border-radius: 10px;
   font-size: 1rem;
   outline: none;
   transition: all 0.3s ease;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+body.dark-mode .search-input {
+  background: var(--card-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
 }
 
 .search-input:focus {
-  border-color: #667eea;
+  border-color: var(--accent-color);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+body.dark-mode .search-input:focus {
+  border-color: var(--accent-dark);
+  box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
 }
 
 .filters {
@@ -76,22 +152,38 @@ body {
 
 .filter-btn {
   padding: 8px 16px;
-  background: white;
-  border: 2px solid #e9ecef;
+  background: var(--bg-color);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
+  color: var(--text-color);
+}
+
+body.dark-mode .filter-btn {
+  background: var(--card-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
 }
 
 .filter-btn:hover {
-  border-color: #667eea;
+  border-color: var(--accent-color);
+}
+
+body.dark-mode .filter-btn:hover {
+  border-color: var(--accent-dark);
 }
 
 .filter-btn.active {
-  background: #667eea;
+  background: var(--accent-color);
   color: white;
-  border-color: #667eea;
+  border-color: var(--accent-color);
+}
+
+body.dark-mode .filter-btn.active {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
 }
 
 /* ➕ FORMULÁRIO */
@@ -99,43 +191,55 @@ body {
   padding: 30px;
   display: flex;
   gap: 15px;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--card-color);
+  border-bottom: 1px solid var(--border-color);
   flex-wrap: wrap;
+  transition: all 0.3s ease;
 }
 
-.task-input {
+body.dark-mode .input-section {
+  background: var(--bg-dark);
+  border-bottom-color: var(--border-dark);
+}
+
+.task-input, .date-input, .priority-select {
   flex: 2;
   min-width: 250px;
   padding: 15px 20px;
-  border: 2px solid #e9ecef;
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   font-size: 1rem;
   transition: all 0.3s ease;
   outline: none;
+  background: var(--bg-color);
+  color: var(--text-color);
 }
 
-.task-input:focus {
-  border-color: #667eea;
+body.dark-mode .task-input,
+body.dark-mode .date-input,
+body.dark-mode .priority-select {
+  background: var(--card-dark);
+  border-color: var(--border-dark);
+  color: var(--text-dark);
+}
+
+.task-input:focus,
+.date-input:focus,
+.priority-select:focus {
+  border-color: var(--accent-color);
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.date-input, .priority-select {
-  padding: 15px;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
-  font-size: 1rem;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-.date-input:focus, .priority-select:focus {
-  border-color: #667eea;
+body.dark-mode .task-input:focus,
+body.dark-mode .date-input:focus,
+body.dark-mode .priority-select:focus {
+  border-color: var(--accent-dark);
+  box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
 }
 
 .add-button {
   padding: 15px 25px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-primary);
   color: white;
   border: none;
   border-radius: 12px;
@@ -146,9 +250,17 @@ body {
   min-width: 140px;
 }
 
+body.dark-mode .add-button {
+  background: linear-gradient(135deg, #bb86fc 0%, #985eff 100%);
+}
+
 .add-button:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+body.dark-mode .add-button:hover:not(:disabled) {
+  box-shadow: 0 10px 20px rgba(187, 134, 252, 0.3);
 }
 
 .add-button:disabled {
@@ -160,8 +272,12 @@ body {
 .loading {
   text-align: center;
   padding: 20px;
-  color: #667eea;
+  color: var(--accent-color);
   font-weight: 600;
+}
+
+body.dark-mode .loading {
+  color: var(--accent-dark);
 }
 
 /* 📋 LISTA DE TAREFAS */
@@ -171,14 +287,23 @@ body {
 
 .tasks-title {
   font-size: 1.5rem;
-  color: #2d3748;
+  color: var(--text-color);
   margin-bottom: 20px;
   font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+body.dark-mode .tasks-title {
+  color: var(--text-dark);
 }
 
 .tasks-count {
-  color: #667eea;
+  color: var(--accent-color);
   font-weight: 700;
+}
+
+body.dark-mode .tasks-count {
+  color: var(--accent-dark);
 }
 
 .empty-state {
@@ -188,10 +313,18 @@ body {
   font-size: 1.1rem;
 }
 
+body.dark-mode .empty-state {
+  color: #a0a0a0;
+}
+
 .empty-state p:first-child {
   font-size: 1.3rem;
   margin-bottom: 10px;
-  color: #667eea;
+  color: var(--accent-color);
+}
+
+body.dark-mode .empty-state p:first-child {
+  color: var(--accent-dark);
 }
 
 .tasks-list {
@@ -204,15 +337,24 @@ body {
   align-items: flex-start;
   padding: 20px;
   margin-bottom: 15px;
-  background: #f8f9fa;
+  background: var(--card-color);
   border-radius: 12px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--accent-color);
   transition: all 0.3s ease;
+}
+
+body.dark-mode .task-item {
+  background: var(--card-dark);
+  border-left-color: var(--accent-dark);
 }
 
 .task-item:hover {
   transform: translateX(5px);
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+body.dark-mode .task-item:hover {
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 .task-item.completed {
@@ -244,10 +386,15 @@ body {
 
 .task-text {
   font-size: 1.1rem;
-  color: #2d3748;
+  color: var(--text-color);
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+body.dark-mode .task-text {
+  color: var(--text-dark);
 }
 
 .task-item.completed .task-text {
@@ -266,8 +413,15 @@ body {
   font-size: 0.85rem;
   padding: 4px 8px;
   border-radius: 6px;
-  background: #e9ecef;
-  color: #4a5568;
+  background: var(--border-color);
+  color: var(--text-color);
+}
+
+body.dark-mode .deadline,
+body.dark-mode .created-at,
+body.dark-mode .priority-tag {
+  background: var(--border-dark);
+  color: var(--text-dark);
 }
 
 .priority-tag {
@@ -298,8 +452,14 @@ body {
 /* 📊 FOOTER */
 .footer {
   padding: 20px 30px;
-  background: #f8f9fa;
-  border-top: 1px solid #e9ecef;
+  background: var(--card-color);
+  border-top: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+body.dark-mode .footer {
+  background: var(--bg-dark);
+  border-top-color: var(--border-dark);
 }
 
 .stats {
@@ -309,14 +469,150 @@ body {
   gap: 15px;
   text-align: center;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--text-color);
+}
+
+body.dark-mode .stats {
+  color: var(--text-dark);
 }
 
 .stats span {
   padding: 8px 16px;
-  background: white;
+  background: var(--bg-color);
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--border-color);
+}
+
+body.dark-mode .stats span {
+  background: var(--card-dark);
+  border-color: var(--border-dark);
+}
+
+/* 🆕 MODAL DE CONFIRMAÇÃO */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.delete-modal {
+  background: var(--bg-color);
+  border-radius: 16px;
+  padding: 0;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+body.dark-mode .delete-modal {
+  background: var(--card-dark);
+}
+
+.modal-header {
+  background: var(--gradient-danger);
+  color: white;
+  padding: 20px;
+  border-radius: 16px 16px 0 0;
+  text-align: center;
+}
+
+.modal-body {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-color);
+}
+
+body.dark-mode .modal-body {
+  color: var(--text-dark);
+}
+
+.task-to-delete {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 15px 0;
+  padding: 10px;
+  background: var(--card-color);
+  border-radius: 8px;
+  border-left: 4px solid #ff6b6b;
+}
+
+body.dark-mode .task-to-delete {
+  background: var(--bg-dark);
+  color: var(--text-dark);
+}
+
+.warning-text {
+  color: #e53e3e;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  padding: 0 30px 30px;
+  justify-content: center;
+}
+
+.cancel-btn {
+  padding: 12px 25px;
+  background: #718096;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.cancel-btn:hover {
+  background: #4a5568;
+  transform: translateY(-2px);
+}
+
+.delete-confirm-btn {
+  padding: 12px 25px;
+  background: var(--gradient-danger);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.delete-confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+}
+
+/* 🆕 ANIMAÇÕES */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 📱 RESPONSIVO */
@@ -347,4 +643,148 @@ body {
     flex-direction: column;
     gap: 10px;
   }
+}
+
+@media (max-width: 480px) {
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .delete-modal {
+    width: 95%;
+  }
+  
+  .theme-toggle {
+    position: relative;
+    top: 0;
+    right: 0;
+    margin-top: 15px;
+  }
+}
+
+/* 🎯 DRAG & DROP STYLES - @dnd-kit */
+.dragging {
+  opacity: 0.8;
+  transform: rotate(5deg) scale(1.02);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  z-index: 1000;
+}
+
+body.dark-mode .dragging {
+  box-shadow: 0 10px 30px rgba(187, 134, 252, 0.4) !important;
+}
+
+/* Feedback visual durante o drag */
+.task-item {
+  transition: all 0.2s ease;
+  cursor: grab;
+  user-select: none;
+}
+
+.task-item:active {
+  cursor: grabbing;
+}
+
+/* Placeholder durante o drag */
+.drag-placeholder {
+  background: rgba(102, 126, 234, 0.1);
+  border: 2px dashed var(--accent-color);
+  border-radius: 12px;
+  height: 80px;
+  margin-bottom: 15px;
+}
+
+body.dark-mode .drag-placeholder {
+  background: rgba(187, 134, 252, 0.1);
+  border-color: var(--accent-dark);
+}
+
+/* Instrução para o usuário */
+.drag-instruction {
+  text-align: center;
+  color: var(--accent-color);
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  font-style: italic;
+  padding: 8px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent-color);
+}
+
+body.dark-mode .drag-instruction {
+  color: var(--accent-dark);
+  background: rgba(187, 134, 252, 0.05);
+  border-left-color: var(--accent-dark);
+}
+
+/* Melhora a área de arrasto */
+.task-item [data-draggable="true"] {
+  cursor: grab;
+}
+
+.task-item [data-draggable="true"]:active {
+  cursor: grabbing;
+}
+
+/* Efeito de hover para indicar que é arrastável */
+.task-item:hover:not(.dragging) {
+  border-left-width: 6px;
+  transform: translateX(3px);
+}
+
+/* 🎯 DRAG & DROP SIMPLES */
+.task-item[draggable="true"] {
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.task-item[draggable="true"]:active {
+  cursor: grabbing;
+  opacity: 0.7;
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.dark-mode .task-item[draggable="true"]:active {
+  box-shadow: 0 8px 25px rgba(187, 134, 252, 0.3) !important;
+}
+
+.task-item[draggable="true"]:hover {
+  border-left-width: 6px;
+  transform: translateX(3px);
+}
+
+/* Efeito durante o drag over */
+.task-item.drag-over {
+  border: 2px dashed var(--accent-color);
+  background: rgba(102, 126, 234, 0.05);
+}
+
+body.dark-mode .task-item.drag-over {
+  border-color: var(--accent-dark);
+  background: rgba(187, 134, 252, 0.05);
+}
+
+.drag-instruction {
+  text-align: center;
+  color: var(--accent-color);
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  font-style: italic;
+  padding: 8px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent-color);
+}
+
+body.dark-mode .drag-instruction {
+  color: var(--accent-dark);
+  background: rgba(187, 134, 252, 0.05);
+  border-left-color: var(--accent-dark);
+}
+
+/* Remove os estilos antigos do @dnd-kit que não vamos usar */
+.dragging, .drag-placeholder, .task-item [data-draggable="true"] {
+  /* Esses estilos não são mais necessários */
 }
