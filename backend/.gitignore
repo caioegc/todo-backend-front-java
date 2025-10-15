@@ -1,0 +1,11 @@
+# Ignorar o arquivo de tarefas locais
+tasks.json
+
+# Ignorar arquivos de compilação Java
+*.class
+
+# Ignorar configurações do sistema e do editor
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
