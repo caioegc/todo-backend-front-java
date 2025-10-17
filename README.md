@@ -8,25 +8,35 @@ Objetivo: Este projeto é ideal para iniciantes que desejam compreender o funcio
 
 Este projeto foca no uso de recursos nativos e mínimos para demonstrar a base de uma aplicação web:
 
+## ⚙️ Tecnologias Utilizadas
 
-## Back-end
+## 🧠 Back-end
+
 | Tecnologia | Descrição |
 | :--- | :--- |
-| **Java 17+** | Linguagem principal do projeto. |
-| **HTTPServer** | Módulo nativo do Java para criar e gerenciar o servidor HTTP. |
-| **JSON** | Formato de dados para salvar e ler as tarefas no arquivo local. |
-| **PowerShell / curl** | Ferramentas de linha de comando para testar as rotas da API. |
-
-## Front-end
-| Tecnologia | Descrição |
-| :--- | :--- |
-| **HTML5** | Estrutura semântica da aplicação. |
-| **CSS3** | Estilos com variáveis CSS e gradientes. |
-| **JavaScript** | Interatividade e consumo da API. |
-| **Drag & Drop API** | Funcionalidade de arrastar tarefas. |
-| **Local Storage** | Tema preferido do usuário. |
+| ![Java](https://img.shields.io/badge/Java_17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white) | **Linguagem principal do projeto**, responsável pela lógica do servidor. |
+| ![HTTPServer](https://img.shields.io/badge/HTTPServer-6DB33F?style=for-the-badge&logo=java&logoColor=white) | **Módulo nativo do Java** usado para criar e gerenciar o servidor HTTP. |
+| ![JSON](https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white) | **Formato leve de dados**, usado para salvar e ler as tarefas localmente. |
+| ![PowerShell](https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white) / ![curl](https://img.shields.io/badge/curl-073551?style=for-the-badge&logo=curl&logoColor=white) | **Ferramentas de linha de comando** para testar as rotas da API. |
 
 ---
+
+## 🎨 Front-end
+
+| Tecnologia | Descrição |
+| :--- | :--- |
+| ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white) | **Estrutura semântica** da aplicação. |
+| ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white) | **Estilos modernos**, com uso de variáveis CSS e gradientes. |
+| ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black) | **Responsável pela interatividade** e consumo da API. |
+| ![Drag & Drop API](https://img.shields.io/badge/Drag_&_Drop_API-FF6F00?style=for-the-badge&logo=javascript&logoColor=white) | **Permite arrastar e soltar tarefas**, tornando o uso mais dinâmico. |
+| ![Local Storage](https://img.shields.io/badge/Local_Storage-0081CB?style=for-the-badge&logo=google-chrome&logoColor=white) | **Guarda preferências do usuário**, como o tema escolhido. |
+
+---
+
+## 🚀 Observação
+
+Essas tecnologias foram escolhidas para garantir **simplicidade, desempenho e portabilidade**, unindo um **backend leve em Java** com um **frontend moderno e interativo**.
+
 
 ## ⚙️ Funcionalidades
 
